@@ -1,0 +1,35 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Content language of this entry. Applied to the article itself, not the
+   * document root — the site's persistent nav/footer chrome stays English
+   * (see BaseLayout) regardless of what language a given piece is in. */
+  lang?: 'en' | 'fr' | 'tr';
+  /** Forwarded to BaseLayout's article:published_time meta tag. Only
+   * Writing entries currently have a publish date to offer. */
+  publishedDate?: Date;
+  /** Forwarded to BaseLayout's article:modified_time meta tag. */
+  updatedDate?: Date;
+}
+
+const { title, description, lang, publishedDate, updatedDate } = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  ogType="article"
+  publishedDate={publishedDate}
+  updatedDate={updatedDate}
+>
+  <article class="prose" lang={lang}>
+    <header>
+      <h1>{title}</h1>
+      <slot name="meta" />
+    </header>
+    <slot />
+  </article>
+</BaseLayout>

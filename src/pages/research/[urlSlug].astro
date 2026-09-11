@@ -1,0 +1,49 @@
+---
+import { getCollection, render } from 'astro:content';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import { publishedOnly, assertUniqueUrlSlugs, titleCase, RESEARCH_PUBLIC } from '../../lib/content';
+import { SUBJECT_LABELS } from '../../lib/subjects';
+
+export async function getStaticPaths() {
+  // Public gate (see RESEARCH_PUBLIC in lib/content.ts): checked first and
+  // independent of collection contents, so a content file added ahead of an
+  // intentional Research launch can never silently generate a public route.
+  if (!RESEARCH_PUBLIC) return [];
+
+  const entries = publishedOnly(await getCollection('research'));
+  assertUniqueUrlSlugs('research', entries);
+  return entries.map((entry) => ({
+    params: { urlSlug: entry.data.urlSlug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const subjectLabels = entry.data.subjects.map((id) => SUBJECT_LABELS[id]).join(', ');
+---
+
+<ProseLayout title={entry.data.title} description={entry.data.abstract} lang={entry.data.lang}>
+  <p class="meta" slot="meta" lang="en">
+    <span class="kind">{titleCase(entry.data.kind)}</span> · {entry.data.lang.toUpperCase()} · {subjectLabels}
+    {entry.data.venue && <>{' '}· {entry.data.venue}</>}
+  </p>
+  <p class="prose">
+    <em>{entry.data.abstract}</em>
+  </p>
+  <Content />
+  {
+    (entry.data.authors || entry.data.doi || entry.data.pdf) && (
+      <p class="meta" lang="en">
+        {entry.data.authors && <>{entry.data.authors.join(', ')} · </>}
+        {entry.data.doi && <>DOI: {entry.data.doi}</>}
+        {entry.data.pdf && (
+          <>
+            {' '}
+            · <a href={entry.data.pdf}>Download PDF</a>
+          </>
+        )}
+      </p>
+    )
+  }
+</ProseLayout>

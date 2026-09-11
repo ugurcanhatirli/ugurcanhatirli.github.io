@@ -1,0 +1,74 @@
+---
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { strings } from '../lib/strings';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Open Graph object type. Only Writing/Research/Project entries are
+   * "article" — everything else is the generic "website". */
+  ogType?: 'website' | 'article';
+  /** ISO-dateable publish date — set only by content that genuinely has
+   * one (Writing entries). Renders article:published_time when present. */
+  publishedDate?: Date;
+  /** Set only when an entry has genuinely been revised. Renders
+   * article:modified_time when present. */
+  updatedDate?: Date;
+  /** Set only by pages with no single canonical URL of their own (the 404
+   * page). Suppresses the canonical link, og:url, and the printed canonical
+   * URL — each would otherwise point to a URL (e.g. "/404/") that isn't a
+   * real, indexable page — and adds a robots noindex directive instead. */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  ogType = 'website',
+  publishedDate,
+  updatedDate,
+  noindex = false,
+} = Astro.props;
+const pageTitle = `${title} · ${strings.siteTitle}`;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#faf9f6" />
+    {
+      /* Single "U" set in Literata Bold — glyph outline extracted directly
+         from the actual font file, so it renders correctly with zero
+         runtime font dependency (favicons don't load page @font-face
+         rules). Site colors only; no logo, no monogram. */
+    }
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {noindex && <meta name="robots" content="noindex" />}
+    {!noindex && <link rel="canonical" href={canonicalURL} />}
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={strings.siteTitle} />
+    <meta property="og:title" content={pageTitle} />
+    {!noindex && <meta property="og:url" content={canonicalURL} />}
+    {description && <meta property="og:description" content={description} />}
+    {publishedDate && <meta property="article:published_time" content={publishedDate.toISOString()} />}
+    {updatedDate && <meta property="article:modified_time" content={updatedDate.toISOString()} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <div class="page">
+      <Nav />
+      <main id="main-content" tabindex="-1">
+        <slot />
+        {!noindex && <p class="print-url">{canonicalURL}</p>}
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

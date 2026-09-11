@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { publishedOnly, titleCase, formatDate, resolveSelectedWriting } from '../lib/content';
+import { strings } from '../lib/strings';
+
+const selectedWriting = resolveSelectedWriting(publishedOnly(await getCollection('writing')));
+---
+
+<BaseLayout title={strings.nav.home} description={strings.descriptions.home}>
+  <p class="prose">
+    I write about politics, political thought, philosophy, and society, with occasional pieces
+    on language, culture, and technology.
+  </p>
+
+  {
+    selectedWriting.length > 0 && (
+      <section>
+        <h2>Selected Writing</h2>
+        <ul class="entry-list">
+          {selectedWriting.map((entry) => (
+            <li>
+              <a href={`/writing/${entry.data.urlSlug}/`} lang={entry.data.lang}>
+                {entry.data.title}
+              </a>
+              <p class="meta" lang="en">
+                <time datetime={entry.data.pubDate.toISOString()}>
+                  {formatDate(entry.data.pubDate, entry.data.lang)}
+                </time>{' '}
+                · {entry.data.lang.toUpperCase()}
+                {entry.data.kind !== 'essay' && <>{' '}· {titleCase(entry.data.kind)}</>}
+              </p>
+              <p lang={entry.data.lang}>{entry.data.description}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</BaseLayout>

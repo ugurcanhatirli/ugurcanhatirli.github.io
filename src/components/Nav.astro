@@ -1,0 +1,48 @@
+---
+import { strings } from '../lib/strings';
+
+// Public v1 navigation shows only sections with genuine current content.
+// Research and Projects remain fully implemented (collections, schemas,
+// routes) but are intentionally not linked here until real content exists —
+// see src/pages/research/ and src/pages/projects/.
+const items = [
+  { href: '/', label: strings.nav.home },
+  { href: '/writing/', label: strings.nav.writing },
+  { href: '/notes/', label: strings.nav.notes },
+  { href: '/about/', label: strings.nav.about },
+];
+
+const currentPath = Astro.url.pathname;
+const isHome = currentPath === '/';
+---
+
+<header>
+  {
+    isHome ? (
+      <h1 class="site-name">
+        <a href="/">{strings.siteTitle}</a>
+      </h1>
+    ) : (
+      <p class="site-name">
+        <a href="/">{strings.siteTitle}</a>
+      </p>
+    )
+  }
+  <nav>
+    <ul>
+      {
+        items.map((item) => {
+          const isCurrent =
+            item.href === '/' ? currentPath === '/' : currentPath.startsWith(item.href);
+          return (
+            <li>
+              <a href={item.href} aria-current={isCurrent ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </nav>
+</header>

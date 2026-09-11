@@ -1,0 +1,38 @@
+---
+// Public v1: Projects is not a public section yet, so this index is kept out
+// of the build via Astro's underscore-prefix exclusion (files/dirs under
+// src/pages/ starting with "_" are never routed) — the matching detail route
+// (../projects/[urlSlug].astro) is separately gated by PROJECTS_PUBLIC in
+// lib/content.ts, so it stays unpublished even if content exists. The
+// implementation below is otherwise complete and unchanged. To reactivate:
+// flip PROJECTS_PUBLIC to true, rename this file back to index.astro, and
+// add Projects to Nav.astro.
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publishedOnly, titleCase } from '../../lib/content';
+import { strings } from '../../lib/strings';
+
+const entries = publishedOnly(await getCollection('projects'));
+---
+
+<BaseLayout title={strings.nav.projects}>
+  <h1>{strings.nav.projects}</h1>
+  <ul class="entry-list">
+    {
+      entries.map((entry) => (
+        <li>
+          <a href={`/projects/${entry.data.urlSlug}/`}>{entry.data.title}</a>
+          <p class="meta">
+            {entry.data.role && <>{entry.data.role} · </>}
+            {entry.data.period === 'ongoing'
+              ? 'Ongoing'
+              : `${entry.data.period.start.getFullYear()}–${entry.data.period.end ? entry.data.period.end.getFullYear() : 'Ongoing'}`}
+            {' · '}
+            {titleCase(entry.data.status)}
+          </p>
+          <p>{entry.data.summary}</p>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>

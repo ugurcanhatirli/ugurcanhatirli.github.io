@@ -1,0 +1,49 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publishedOnly, assertUniqueUrlSlugs, titleCase, PROJECTS_PUBLIC } from '../../lib/content';
+
+export async function getStaticPaths() {
+  // Public gate (see PROJECTS_PUBLIC in lib/content.ts): checked first and
+  // independent of collection contents, so a content file added ahead of an
+  // intentional Projects launch can never silently generate a public route.
+  if (!PROJECTS_PUBLIC) return [];
+
+  const entries = publishedOnly(await getCollection('projects'));
+  assertUniqueUrlSlugs('projects', entries);
+  return entries.map((entry) => ({
+    params: { urlSlug: entry.data.urlSlug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const periodLabel =
+  entry.data.period === 'ongoing'
+    ? 'Ongoing'
+    : `${entry.data.period.start.getFullYear()}–${entry.data.period.end ? entry.data.period.end.getFullYear() : 'Ongoing'}`;
+---
+
+<BaseLayout title={entry.data.title} description={entry.data.summary}>
+  <article class="prose">
+    <header>
+      <h1>{entry.data.title}</h1>
+      <p class="meta">
+        {entry.data.role && <>{entry.data.role} · </>}
+        {periodLabel} · {titleCase(entry.data.status)}
+      </p>
+    </header>
+    <p>{entry.data.summary}</p>
+    <Content />
+    <ul class="meta">
+      {
+        entry.data.links.map((link) => (
+          <li>
+            <a href={link.url}>{link.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </article>
+</BaseLayout>

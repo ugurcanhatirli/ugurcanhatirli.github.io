@@ -1,0 +1,10 @@
+---
+import { strings } from '../lib/strings';
+
+const year = new Date().getFullYear();
+---
+
+<footer>
+  <p>{strings.footer.copyright(year)}</p>
+  <p>{strings.footer.tech}</p>
+</footer>

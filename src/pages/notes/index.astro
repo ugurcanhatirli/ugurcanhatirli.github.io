@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { publishedOnly, titleCase, formatDate, compareByPubDateDesc } from '../../lib/content';
+import { strings } from '../../lib/strings';
+import { SUBJECT_LABELS } from '../../lib/subjects';
+
+const entries = publishedOnly(await getCollection('notes')).sort(compareByPubDateDesc);
+---
+
+<BaseLayout title={strings.nav.notes} description={strings.descriptions.notes}>
+  <h1>{strings.nav.notes}</h1>
+  <ul class="entry-list">
+    {
+      entries.map((entry) => (
+        <li>
+          <a href={`/notes/${entry.data.urlSlug}/`} lang={entry.data.lang}>
+            {entry.data.title}
+          </a>
+          <p class="meta" lang="en">
+            <time datetime={entry.data.pubDate.toISOString()}>
+              {formatDate(entry.data.pubDate, entry.data.lang)}
+            </time>{' '}
+            · {entry.data.lang.toUpperCase()} · {titleCase(entry.data.noteType)} ·{' '}
+            {entry.data.subjects.map((id) => SUBJECT_LABELS[id]).join(', ')}
+          </p>
+          <p lang={entry.data.lang}>{entry.data.description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>

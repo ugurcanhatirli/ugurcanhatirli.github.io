@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { strings } from '../lib/strings';
+---
+
+<BaseLayout title={strings.nav.about} description={strings.descriptions.about}>
+  <h1>{strings.nav.about}</h1>
+  <p class="prose">
+    I'm Uğur Can Hatırlı, a first-year International Relations student at Galatasaray University.
+  </p>
+  <p class="prose">
+    I completed the French-language preparatory programme at Galatasaray, then the
+    English-language preparatory programme at Boğaziçi University, before returning to Galatasaray
+    for International Relations.
+  </p>
+  <p class="prose">
+    My current interests include political thought, European politics, philosophy, and research
+    methods. These are developing interests rather than fixed research specialisations.
+  </p>
+  <p class="prose">Turkish is my first language. I also read, write, and work in English and French.</p>
+  <p class="prose">This site collects a selection of my writing and notes.</p>
+  <p class="meta">
+    <a href="mailto:ugurcanhatirli1789@gmail.com">Email</a>{' '}
+    · <a href="https://github.com/ugurcanhatirli">GitHub</a>{' '}
+    · <a href="https://www.linkedin.com/in/ugurcanhatirli">LinkedIn</a>
+  </p>
+</BaseLayout>
